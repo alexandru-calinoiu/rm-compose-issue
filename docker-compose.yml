@@ -1,0 +1,29 @@
+version: "3"
+volumes:
+  bundle_cache:
+    driver: local
+  db_data:
+    driver: local
+services:
+  api:
+    container_name: sample_api
+    build:
+      context: ${API_PATH:-.}
+      dockerfile: dev.Dockerfile
+    image: sample_api
+    command: bundle exec rackup -p 4000 config.ru
+    ports:
+      - 4000:4000
+      - 4567:4567
+    volumes:
+      - ${API_PATH:-.}:/web/app
+      - bundle_cache:/bundle
+    links:
+      - db
+  db:
+    container_name: sample_db
+    image: postgres:10.3-alpine
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
